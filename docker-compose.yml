@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: apps/api-gateway/Dockerfile
+    ports:
+      - "3000:3000"
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: apps/auth-service/Dockerfile
+
+  tasks-service:
+    build:
+      context: .
+      dockerfile: apps/tasks-service/Dockerfile
+
+  notifications-service:
+    build:
+      context: .
+      dockerfile: apps/notifications-service/Dockerfile
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "5173:5173"
