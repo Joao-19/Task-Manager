@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { CreateTaskDialog } from '@/components/create-task-dialog';
 
 export const Route = createFileRoute('/_authenticated/dashboard')({
   component: Dashboard,
@@ -24,7 +25,9 @@ function Dashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-        <Button>+ Nova Tarefa</Button>
+        <CreateTaskDialog>
+          <Button>+ Nova Tarefa</Button>
+        </CreateTaskDialog>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -41,7 +44,7 @@ function Dashboard() {
                 {task.title}
               </CardTitle>
               <div className={`w-3 h-3 rounded-full ${task.priority === 'HIGH' ? 'bg-red-500' :
-                  task.priority === 'MEDIUM' ? 'bg-yellow-500' : 'bg-green-500'
+                task.priority === 'MEDIUM' ? 'bg-yellow-500' : 'bg-green-500'
                 }`} />
             </CardHeader>
             <CardContent>
