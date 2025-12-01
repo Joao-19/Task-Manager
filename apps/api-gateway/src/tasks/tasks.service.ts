@@ -44,4 +44,46 @@ export class TasksService {
       );
     }
   }
+
+  async findOne(id: string) {
+    try {
+      const response = await lastValueFrom(
+        this.httpService.get(`${this.tasksServiceUrl}/tasks/${id}`),
+      );
+      return response.data;
+    } catch (error) {
+      throw new HttpException(
+        error.response?.data || 'Erro no Tasks Service',
+        error.response?.status || 500,
+      );
+    }
+  }
+
+  async update(id: string, data: any) {
+    try {
+      const response = await lastValueFrom(
+        this.httpService.patch(`${this.tasksServiceUrl}/tasks/${id}`, data),
+      );
+      return response.data;
+    } catch (error) {
+      throw new HttpException(
+        error.response?.data || 'Erro no Tasks Service',
+        error.response?.status || 500,
+      );
+    }
+  }
+
+  async remove(id: string) {
+    try {
+      const response = await lastValueFrom(
+        this.httpService.delete(`${this.tasksServiceUrl}/tasks/${id}`),
+      );
+      return response.data;
+    } catch (error) {
+      throw new HttpException(
+        error.response?.data || 'Erro no Tasks Service',
+        error.response?.status || 500,
+      );
+    }
+  }
 }

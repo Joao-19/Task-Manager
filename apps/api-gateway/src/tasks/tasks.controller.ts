@@ -1,7 +1,23 @@
-import { Body, Controller, Post, UseGuards, Request, Get } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  UseGuards,
+  Request,
+  Get,
+  Param,
+  Patch,
+  Delete,
+} from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import { AuthGuard } from '@nestjs/passport'; // O guardião padrão do JWT
-import { ApiOperation, ApiBody, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import {
+  ApiOperation,
+  ApiTags,
+  ApiBearerAuth,
+  ApiResponse,
+} from '@nestjs/swagger';
+import { CreateTaskDto, UpdateTaskDto, TaskResponseDto } from '@repo/dtos';
 
 @ApiTags('Tasks')
 @ApiBearerAuth()
@@ -12,18 +28,12 @@ export class TasksController {
   @UseGuards(AuthGuard('jwt'))
   @Post()
   @ApiOperation({ summary: 'Criar uma nova tarefa' })
-  @ApiBody({ 
-    schema: {
-      type: 'object',
-      properties: {
-        title: { type: 'string', example: 'Corrigir Bug' },
-        description: { type: 'string', example: 'Erro na tela de login' },
-        priority: { type: 'string', enum: ['LOW', 'MEDIUM', 'HIGH'], example: 'HIGH' },
-        dueDate: { type: 'string', format: 'date-time' }
-      }
-    }
+  @ApiResponse({
+    status: 201,
+    description: 'Tarefa criada com sucesso.',
+    type: TaskResponseDto,
   })
-  create(@Body() body: any, @Request() req: any) {
+  create(@Body() body: CreateTaskDto, @Request() req: any) {
     const userId = req.user.userId;
     return this.tasksService.createTask(body, userId);
   }
@@ -31,7 +41,47 @@ export class TasksController {
   @UseGuards(AuthGuard('jwt'))
   @Get()
   @ApiOperation({ summary: 'Listar todas as tarefas' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de tarefas.',
+    type: [TaskResponseDto],
+  })
   findAll() {
     return this.tasksService.findAll();
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get(':id')
+  @ApiOperation({ summary: 'Buscar uma tarefa pelo ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Detalhes da tarefa.',
+    type: TaskResponseDto,
+  })
+  findOne(@Param('id') id: string) {
+    return this.tasksService.findOne(id);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch(':id')
+  @ApiOperation({ summary: 'Atualizar uma tarefa' })
+  @ApiResponse({
+    status: 200,
+    description: 'Tarefa atualizada.',
+    type: TaskResponseDto,
+  })
+  update(@Param('id') id: string, @Body() body: UpdateTaskDto) {
+    return this.tasksService.update(id, body);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete(':id')
+  @ApiOperation({ summary: 'Remover uma tarefa' })
+  @ApiResponse({
+    status: 200,
+    description: 'Tarefa removida.',
+  })
+  remove(@Param('id') id: string) {
+    return this.tasksService.remove(id);
   }
 }

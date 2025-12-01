@@ -22,4 +22,9 @@ export class UpdateTaskDto {
   @IsISO8601()
   @IsOptional()
   dueDate?: string;
+
+  @ApiPropertyOptional({ example: ["uuid-1", "uuid-2"] })
+  @IsString({ each: true })
+  @IsOptional()
+  assigneeIds?: string[];
 }

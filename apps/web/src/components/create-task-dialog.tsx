@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { TaskPriority } from '@repo/dtos';
 import { api } from '@/lib/api';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 
 import {
@@ -33,6 +33,7 @@ const createTaskSchema = z.object({
     description: z.string().optional(),
     priority: z.nativeEnum(TaskPriority),
     dueDate: z.string().optional(),
+    assigneeIds: z.array(z.string()).optional(),
 });
 
 type CreateTaskForm = z.infer<typeof createTaskSchema>;
@@ -41,6 +42,14 @@ export function CreateTaskDialog({ children }: { children: React.ReactNode }) {
     const [open, setOpen] = useState(false);
     const queryClient = useQueryClient();
     const { toast } = useToast();
+
+    const { data: users } = useQuery({
+        queryKey: ['users'],
+        queryFn: async () => {
+            const res = await api.get('/users');
+            return res.data;
+        },
+    });
 
     const {
         register,
@@ -53,10 +62,24 @@ export function CreateTaskDialog({ children }: { children: React.ReactNode }) {
         resolver: zodResolver(createTaskSchema),
         defaultValues: {
             priority: TaskPriority.LOW,
+            assigneeIds: [],
         },
     });
 
     const priority = watch('priority');
+    const assigneeIds = watch('assigneeIds') || [];
+
+    const toggleUser = (userId: string) => {
+        const current = assigneeIds;
+        if (current.includes(userId)) {
+            setValue(
+                'assigneeIds',
+                current.filter((id) => id !== userId),
+            );
+        } else {
+            setValue('assigneeIds', [...current, userId]);
+        }
+    };
 
     const onSubmit = async (data: CreateTaskForm) => {
         try {
@@ -86,7 +109,7 @@ export function CreateTaskDialog({ children }: { children: React.ReactNode }) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Nova Tarefa</DialogTitle>
                     <DialogDescription>
@@ -142,6 +165,29 @@ export function CreateTaskDialog({ children }: { children: React.ReactNode }) {
                                 type="date"
                                 {...register('dueDate')}
                             />
+                        </div>
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label>Atribuir a:</Label>
+                        <div className="border rounded-md p-2 max-h-32 overflow-y-auto space-y-2">
+                            {users?.map((user: any) => (
+                                <div key={user.id} className="flex items-center space-x-2">
+                                    <input
+                                        type="checkbox"
+                                        id={`user-${user.id}`}
+                                        checked={assigneeIds.includes(user.id)}
+                                        onChange={() => toggleUser(user.id)}
+                                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                    />
+                                    <Label htmlFor={`user-${user.id}`} className="text-sm font-normal cursor-pointer">
+                                        {user.username} ({user.email})
+                                    </Label>
+                                </div>
+                            ))}
+                            {(!users || users.length === 0) && (
+                                <p className="text-xs text-muted-foreground">Nenhum usuário encontrado.</p>
+                            )}
                         </div>
                     </div>
 

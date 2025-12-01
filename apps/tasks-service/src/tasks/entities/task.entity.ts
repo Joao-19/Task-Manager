@@ -6,20 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-// Enums ajudam a validar os valores permitidos
-export enum TaskStatus {
-  TODO = 'TODO',
-  IN_PROGRESS = 'IN_PROGRESS',
-  REVIEW = 'REVIEW',
-  DONE = 'DONE',
-}
-
-export enum TaskPriority {
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH',
-  URGENT = 'URGENT',
-}
+import { TaskStatus, TaskPriority } from '@repo/dtos';
 
 @Entity({ name: 'tasks' })
 export class Task {
@@ -41,8 +28,11 @@ export class Task {
   @Column({ type: 'timestamp', nullable: true })
   dueDate: Date;
 
-  @Column() // Aqui salvaremos o ID do usuário que criou (vem do Token)
+  @Column()
   userId: string;
+
+  @Column({ type: 'simple-array', nullable: true })
+  assigneeIds: string[];
 
   @CreateDateColumn()
   createdAt: Date;
