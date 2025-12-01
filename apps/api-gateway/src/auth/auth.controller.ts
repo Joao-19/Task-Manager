@@ -1,6 +1,13 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
+import {
+  CreateUserDto,
+  LoginDto,
+  LoginResponseDto,
+  UserResponseDto,
+  RefreshTokenDto,
+} from '@repo/dtos';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -18,7 +25,12 @@ export class AuthController {
       },
     },
   })
-  login(@Body() body: any) {
+  @ApiResponse({
+    status: 200,
+    description: 'Autenticação realizada com sucesso',
+    type: LoginResponseDto,
+  })
+  login(@Body() body: LoginDto): Promise<LoginResponseDto> {
     return this.authService.login(body);
   }
 
@@ -34,7 +46,24 @@ export class AuthController {
       },
     },
   })
-  register(@Body() body: any) {
+  @ApiResponse({
+    status: 201,
+    description: 'Usuário registrado com sucesso',
+    type: UserResponseDto,
+  })
+  register(@Body() body: CreateUserDto): Promise<UserResponseDto> {
     return this.authService.register(body);
+  }
+
+  @Post('refresh')
+  @ApiOperation({ summary: 'Renovar Access Token' })
+  // Padrão comum: Header Authorization Bearer <Refresh Token>
+  @ApiResponse({
+    status: 200,
+    description: 'Access Token renovado com sucesso',
+    type: LoginResponseDto,
+  })
+  refresh(@Body() body: RefreshTokenDto): Promise<LoginResponseDto> {
+    return this.authService.refresh(body.refreshToken);
   }
 }
