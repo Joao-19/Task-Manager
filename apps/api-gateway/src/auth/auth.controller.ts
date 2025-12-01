@@ -6,6 +6,7 @@ import {
   LoginDto,
   LoginResponseDto,
   UserResponseDto,
+  RefreshTokenDto,
 } from '@repo/dtos';
 
 @ApiTags('Auth')
@@ -62,7 +63,7 @@ export class AuthController {
     description: 'Access Token renovado com sucesso',
     type: LoginResponseDto,
   })
-  refresh(@Body() body: { refreshToken: string }): Promise<LoginResponseDto> {
+  refresh(@Body() body: RefreshTokenDto): Promise<LoginResponseDto> {
     return this.authService.refresh(body.refreshToken);
   }
 }
