@@ -16,7 +16,7 @@ export class TasksService {
     @InjectRepository(Task)
     private tasksRepository: Repository<Task>,
 
-    // Injeta o cliente RabbitMQ que configuramos no módulo
+    // Injeta o cliente RabbitMQ configurado no módulo
     @Inject('NOTIFICATIONS_SERVICE') private readonly client: ClientProxy,
   ) {}
 
@@ -54,13 +54,27 @@ export class TasksService {
       throw new ForbiddenException('You are not allowed to update this task');
     }
 
-    // Atualiza os campos
+    const changes: string[] = [];
+
+    if (updateTaskDto.status && updateTaskDto.status !== task.status) {
+      changes.push('STATUS');
+    }
+
+    if (updateTaskDto.assigneeIds) {
+      const oldAssignees = (task.assigneeIds || []).sort();
+      const newAssignees = (updateTaskDto.assigneeIds || []).sort();
+
+      const isDifferent =
+        JSON.stringify(oldAssignees) !== JSON.stringify(newAssignees);
+      if (isDifferent) {
+        changes.push('ASSIGNEES');
+      }
+    }
+
     Object.assign(task, updateTaskDto);
 
     const updatedTask = await this.tasksRepository.save(task);
-
-    // Emite evento de atualização
-    this.client.emit('task_updated', updatedTask);
+    this.client.emit('task_updated', { ...updatedTask, changes });
 
     return updatedTask;
   }

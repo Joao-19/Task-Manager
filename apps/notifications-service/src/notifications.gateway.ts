@@ -8,7 +8,7 @@ import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
   cors: {
-    origin: '*', // Permite que o Frontend (porta 5173) conecte aqui
+    origin: '*',
   },
 })
 export class NotificationsGateway
@@ -17,12 +17,9 @@ export class NotificationsGateway
   @WebSocketServer()
   server: Server;
 
-  // Mapa simples para guardar qual usuário está em qual socket
-  // Em produção, isso ficaria no Redis
-  private userSockets = new Map<string, string>(); // userId -> socketId
+  private userSockets = new Map<string, string>();
 
   handleConnection(client: Socket) {
-    // O Frontend vai mandar o userId na query: ws://localhost:3004?userId=123
     const userId = client.handshake.query.userId as string;
 
     if (userId) {
@@ -32,7 +29,6 @@ export class NotificationsGateway
   }
 
   handleDisconnect(client: Socket) {
-    // Remove do mapa quando desconectar
     const userId = [...this.userSockets.entries()].find(
       ([_, socketId]) => socketId === client.id,
     )?.[0];
@@ -43,12 +39,10 @@ export class NotificationsGateway
     }
   }
 
-  // Método que será chamado quando chegar mensagem do RabbitMQ
   notifyUser(userId: string, payload: any) {
     const socketId = this.userSockets.get(userId);
 
     if (socketId) {
-      // Envia APENAS para o socket deste usuário específico
       this.server.to(socketId).emit('notification', payload);
       console.log(`Mensagem enviada via WebSocket para o usuário ${userId}`);
     } else {
