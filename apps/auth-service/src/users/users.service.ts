@@ -1,8 +1,8 @@
 import * as bcrypt from 'bcrypt';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CreateUserDto, UserResponseDto } from '@repo/dtos';
+import { Repository, Like } from 'typeorm';
+import { CreateUserDto, UserResponseDto, UserQueryDto } from '@repo/dtos';
 import { User } from './entities/user.entity';
 
 @Injectable()
@@ -34,8 +34,32 @@ export class UsersService {
     return new UserResponseDto(user);
   }
 
-  findAll() {
-    return this.usersRepository.find();
+  async findAll(query: UserQueryDto) {
+    const { page = 1, limit = 10, search } = query;
+    const skip = (page - 1) * limit;
+
+    const where: any = [];
+    if (search) {
+      where.push({ username: Like(`%${search}%`) });
+      where.push({ email: Like(`%${search}%`) });
+    }
+
+    const [users, total] = await this.usersRepository.findAndCount({
+      where: where.length > 0 ? where : {},
+      skip,
+      take: limit,
+      order: { username: 'ASC' },
+    });
+
+    return {
+      data: users.map((u) => new UserResponseDto(u)),
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   findOne(form: { id?: string; email?: string }) {

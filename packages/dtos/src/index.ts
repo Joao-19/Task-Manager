@@ -1,5 +1,3 @@
-import "reflect-metadata";
-
 // auth
 export * from "./auth";
 

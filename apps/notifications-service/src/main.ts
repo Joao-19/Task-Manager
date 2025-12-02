@@ -10,7 +10,7 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
-      urls: ['amqp://admin:admin@localhost:5672'], // Credenciais do docker
+      urls: [process.env.RABBITMQ_URL || 'amqp://admin:admin@localhost:5672'],
       queue: 'notifications_queue', // Mesma fila que o TasksService envia
       queueOptions: {
         durable: false,

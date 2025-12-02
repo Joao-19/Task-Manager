@@ -1,17 +1,16 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
-import { tanstackRouter } from '@tanstack/router-plugin/vite'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    tanstackRouter(),
-    react(),
-  ],
+  plugins: [tanstackRouter(), react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "@repo/dtos": path.resolve(__dirname, "../../packages/dtos/src/index.ts"),
+      "@nestjs/swagger": path.resolve(__dirname, "./src/lib/swagger-shim.ts"),
     },
   },
-})
+});

@@ -26,6 +26,7 @@ export class TasksService {
       status: TaskStatus.TODO,
       priority: createTaskDto.priority || TaskPriority.LOW,
       userId: userId,
+      assigneeIds: createTaskDto.assigneeIds || [],
     });
 
     const savedTask = await this.tasksRepository.save(task);
@@ -41,15 +42,28 @@ export class TasksService {
     return this.tasksRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} task`;
+  findOne(id: string) {
+    return this.tasksRepository.findOne({ where: { id } });
   }
 
-  update(id: number, updateTaskDto: UpdateTaskDto) {
-    return `This action updates a #${id} task`;
+  async update(id: string, updateTaskDto: UpdateTaskDto) {
+    const task = await this.tasksRepository.findOne({ where: { id } });
+    if (!task) {
+      throw new Error('Task not found');
+    }
+
+    // Atualiza os campos
+    Object.assign(task, updateTaskDto);
+
+    const updatedTask = await this.tasksRepository.save(task);
+
+    // Emite evento de atualização
+    this.client.emit('task_updated', updatedTask);
+
+    return updatedTask;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} task`;
+  async remove(id: string) {
+    return this.tasksRepository.delete(id);
   }
 }
