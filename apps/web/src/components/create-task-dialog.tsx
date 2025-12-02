@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { TaskPriority } from '@repo/dtos';
 import { api } from '@/lib/api';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 
 import {
@@ -27,6 +27,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { UserMultiSelect } from './user-multi-select';
 
 const createTaskSchema = z.object({
     title: z.string().min(1, 'Título é obrigatório'),
@@ -42,14 +43,6 @@ export function CreateTaskDialog({ children }: { children: React.ReactNode }) {
     const [open, setOpen] = useState(false);
     const queryClient = useQueryClient();
     const { toast } = useToast();
-
-    const { data: users } = useQuery({
-        queryKey: ['users'],
-        queryFn: async () => {
-            const res = await api.get('/users');
-            return res.data;
-        },
-    });
 
     const {
         register,
@@ -68,18 +61,6 @@ export function CreateTaskDialog({ children }: { children: React.ReactNode }) {
 
     const priority = watch('priority');
     const assigneeIds = watch('assigneeIds') || [];
-
-    const toggleUser = (userId: string) => {
-        const current = assigneeIds;
-        if (current.includes(userId)) {
-            setValue(
-                'assigneeIds',
-                current.filter((id) => id !== userId),
-            );
-        } else {
-            setValue('assigneeIds', [...current, userId]);
-        }
-    };
 
     const onSubmit = async (data: CreateTaskForm) => {
         try {
@@ -126,7 +107,9 @@ export function CreateTaskDialog({ children }: { children: React.ReactNode }) {
                             {...register('title')}
                         />
                         {errors.title && (
-                            <span className="text-xs text-red-500">{errors.title.message}</span>
+                            <span className="text-xs text-red-500">
+                                {errors.title.message}
+                            </span>
                         )}
                     </div>
 
@@ -144,7 +127,9 @@ export function CreateTaskDialog({ children }: { children: React.ReactNode }) {
                             <Label htmlFor="priority">Prioridade</Label>
                             <Select
                                 value={priority}
-                                onValueChange={(val) => setValue('priority', val as TaskPriority)}
+                                onValueChange={(val) =>
+                                    setValue('priority', val as TaskPriority)
+                                }
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Selecione" />
@@ -160,35 +145,16 @@ export function CreateTaskDialog({ children }: { children: React.ReactNode }) {
 
                         <div className="grid gap-2">
                             <Label htmlFor="dueDate">Prazo</Label>
-                            <Input
-                                id="dueDate"
-                                type="date"
-                                {...register('dueDate')}
-                            />
+                            <Input id="dueDate" type="date" {...register('dueDate')} />
                         </div>
                     </div>
 
                     <div className="grid gap-2">
                         <Label>Atribuir a:</Label>
-                        <div className="border rounded-md p-2 max-h-32 overflow-y-auto space-y-2">
-                            {users?.map((user: any) => (
-                                <div key={user.id} className="flex items-center space-x-2">
-                                    <input
-                                        type="checkbox"
-                                        id={`user-${user.id}`}
-                                        checked={assigneeIds.includes(user.id)}
-                                        onChange={() => toggleUser(user.id)}
-                                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                    />
-                                    <Label htmlFor={`user-${user.id}`} className="text-sm font-normal cursor-pointer">
-                                        {user.username} ({user.email})
-                                    </Label>
-                                </div>
-                            ))}
-                            {(!users || users.length === 0) && (
-                                <p className="text-xs text-muted-foreground">Nenhum usuário encontrado.</p>
-                            )}
-                        </div>
+                        <UserMultiSelect
+                            selectedUserIds={assigneeIds}
+                            onChange={(ids) => setValue('assigneeIds', ids)}
+                        />
                     </div>
 
                     <DialogFooter>

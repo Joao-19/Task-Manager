@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -7,7 +7,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { UserResponseDto } from '@repo/dtos';
+import { UserResponseDto, UserQueryDto } from '@repo/dtos';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -23,7 +23,7 @@ export class UsersController {
     description: 'Lista de usuários.',
     type: [UserResponseDto],
   })
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query() query: UserQueryDto) {
+    return this.usersService.findAll(query);
   }
 }

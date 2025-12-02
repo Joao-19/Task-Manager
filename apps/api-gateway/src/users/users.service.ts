@@ -2,6 +2,7 @@ import { Injectable, HttpException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
+import { UserQueryDto } from '@repo/dtos';
 
 @Injectable()
 export class UsersService {
@@ -16,10 +17,10 @@ export class UsersService {
       'http://localhost:3002';
   }
 
-  async findAll() {
+  async findAll(query: UserQueryDto) {
     try {
       const response = await lastValueFrom(
-        this.httpService.get(`${this.authServiceUrl}/users`),
+        this.httpService.get(`${this.authServiceUrl}/users`, { params: query }),
       );
       return response.data;
     } catch (error) {

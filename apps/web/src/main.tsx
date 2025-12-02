@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
@@ -18,7 +19,7 @@ const router = createRouter({
   defaultPreload: 'intent', // Faz pré-load da página ao passar o mouse no link
   context: {
     // Definimos como undefined inicial, mas será injetado no InnerApp
-    auth: undefined!, 
+    auth: undefined!,
   },
 });
 
@@ -32,7 +33,7 @@ declare module '@tanstack/react-router' {
 // 3. Componente Interno para conectar Auth -> Router
 function InnerApp() {
   const auth = useAuth();
-  
+
   // Aqui injetamos o contexto real de auth no roteador
   return <RouterProvider router={router} context={{ auth }} />;
 }
