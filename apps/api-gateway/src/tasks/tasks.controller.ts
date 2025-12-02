@@ -96,4 +96,15 @@ export class TasksController {
     const userId = req.user.userId;
     return this.tasksService.remove(id, userId);
   }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get(':id/history')
+  @ApiOperation({ summary: 'Obter histórico da tarefa' })
+  @ApiResponse({
+    status: 200,
+    description: 'Histórico da tarefa.',
+  })
+  getHistory(@Param('id') id: string) {
+    return this.tasksService.getHistory(id);
+  }
 }

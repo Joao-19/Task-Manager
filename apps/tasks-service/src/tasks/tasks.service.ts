@@ -10,6 +10,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
+import { TaskHistory } from './entities/task-history.entity';
 
 @Injectable()
 export class TasksService {
@@ -17,7 +18,9 @@ export class TasksService {
     @InjectRepository(Task)
     private tasksRepository: Repository<Task>,
 
-    // Injeta o cliente RabbitMQ configurado no módulo
+    @InjectRepository(TaskHistory)
+    private historyRepository: Repository<TaskHistory>,
+
     @Inject('NOTIFICATIONS_SERVICE') private readonly client: ClientProxy,
   ) {}
 
@@ -31,6 +34,13 @@ export class TasksService {
     });
 
     const savedTask = await this.tasksRepository.save(task);
+
+    // Log Creation
+    await this.historyRepository.save({
+      taskId: savedTask.id,
+      userId: userId,
+      action: 'CREATED',
+    });
 
     this.client.emit('task_created', savedTask);
 
@@ -62,7 +72,6 @@ export class TasksService {
     }
 
     if (assigneeId) {
-      // Como assigneeIds é um simple-array, usamos LIKE para buscar
       query.andWhere('task.assigneeIds LIKE :assigneeId', {
         assigneeId: `%${assigneeId}%`,
       });
@@ -104,10 +113,32 @@ export class TasksService {
 
     const changes: string[] = [];
 
+    // Detect and Log Status Change
     if (updateTaskDto.status && updateTaskDto.status !== task.status) {
       changes.push('STATUS');
+      await this.historyRepository.save({
+        taskId: task.id,
+        userId: userId,
+        action: 'UPDATED',
+        field: 'STATUS',
+        oldValue: task.status,
+        newValue: updateTaskDto.status,
+      });
     }
 
+    // Detect and Log Priority Change
+    if (updateTaskDto.priority && updateTaskDto.priority !== task.priority) {
+      await this.historyRepository.save({
+        taskId: task.id,
+        userId: userId,
+        action: 'UPDATED',
+        field: 'PRIORITY',
+        oldValue: task.priority,
+        newValue: updateTaskDto.priority,
+      });
+    }
+
+    // Detect and Log Assignees Change
     if (updateTaskDto.assigneeIds) {
       const oldAssignees = (task.assigneeIds || []).sort();
       const newAssignees = (updateTaskDto.assigneeIds || []).sort();
@@ -116,6 +147,14 @@ export class TasksService {
         JSON.stringify(oldAssignees) !== JSON.stringify(newAssignees);
       if (isDifferent) {
         changes.push('ASSIGNEES');
+        await this.historyRepository.save({
+          taskId: task.id,
+          userId: userId,
+          action: 'UPDATED',
+          field: 'ASSIGNEES',
+          oldValue: JSON.stringify(oldAssignees),
+          newValue: JSON.stringify(newAssignees),
+        });
       }
     }
 
@@ -138,5 +177,12 @@ export class TasksService {
     }
 
     return this.tasksRepository.delete(id);
+  }
+
+  async getHistory(taskId: string) {
+    return this.historyRepository.find({
+      where: { taskId },
+      order: { createdAt: 'DESC' },
+    });
   }
 }

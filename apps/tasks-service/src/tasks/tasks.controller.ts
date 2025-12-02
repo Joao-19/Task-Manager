@@ -44,4 +44,9 @@ export class TasksController {
   remove(@Param('id') id: string, @Query('userId') userId: string) {
     return this.tasksService.remove(id, userId);
   }
+
+  @Get(':id/history')
+  getHistory(@Param('id') id: string) {
+    return this.tasksService.getHistory(id);
+  }
 }

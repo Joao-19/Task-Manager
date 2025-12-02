@@ -91,4 +91,18 @@ export class TasksService {
       );
     }
   }
+
+  async getHistory(id: string) {
+    try {
+      const response = await lastValueFrom(
+        this.httpService.get(`${this.tasksServiceUrl}/tasks/${id}/history`),
+      );
+      return response.data;
+    } catch (error) {
+      throw new HttpException(
+        error.response?.data || 'Erro no Tasks Service',
+        error.response?.status || 500,
+      );
+    }
+  }
 }

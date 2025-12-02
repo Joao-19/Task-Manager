@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { UserMultiSelect } from './user-multi-select';
+import { TaskHistoryList } from './task-history-list';
 import { api } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
@@ -244,10 +245,8 @@ export function TaskDetailsDialog({
 
                     {/* Coluna Direita: Comentários e Histórico */}
                     <div className="border-l pl-6 space-y-4">
-                        <h3 className="font-semibold text-lg">Comentários & Histórico</h3>
-                        <div className="h-[400px] flex items-center justify-center border-2 border-dashed rounded-lg text-muted-foreground bg-muted/10">
-                            <p className="text-sm">Área reservada para comentários (Em breve)</p>
-                        </div>
+                        <h3 className="font-semibold text-lg">Histórico de Alterações</h3>
+                        <TaskHistoryList taskId={task.id} />
                     </div>
                 </div>
             </DialogContent>
