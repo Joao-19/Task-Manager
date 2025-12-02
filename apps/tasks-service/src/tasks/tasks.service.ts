@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, ForbiddenException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import {
   CreateTaskDto,
@@ -16,7 +16,7 @@ export class TasksService {
     @InjectRepository(Task)
     private tasksRepository: Repository<Task>,
 
-    // Injeta o cliente RabbitMQ que configuramos no módulo
+    // Injeta o cliente RabbitMQ configurado no módulo
     @Inject('NOTIFICATIONS_SERVICE') private readonly client: ClientProxy,
   ) {}
 
@@ -31,8 +31,6 @@ export class TasksService {
 
     const savedTask = await this.tasksRepository.save(task);
 
-    // 🔥 AQUI ACONTECE A MÁGICA
-    // Emitimos um evento 'task_created' com os dados da tarefa
     this.client.emit('task_created', savedTask);
 
     return savedTask;
@@ -46,24 +44,51 @@ export class TasksService {
     return this.tasksRepository.findOne({ where: { id } });
   }
 
-  async update(id: string, updateTaskDto: UpdateTaskDto) {
+  async update(id: string, updateTaskDto: UpdateTaskDto, userId: string) {
     const task = await this.tasksRepository.findOne({ where: { id } });
     if (!task) {
       throw new Error('Task not found');
     }
 
-    // Atualiza os campos
+    if (task.userId !== userId) {
+      throw new ForbiddenException('You are not allowed to update this task');
+    }
+
+    const changes: string[] = [];
+
+    if (updateTaskDto.status && updateTaskDto.status !== task.status) {
+      changes.push('STATUS');
+    }
+
+    if (updateTaskDto.assigneeIds) {
+      const oldAssignees = (task.assigneeIds || []).sort();
+      const newAssignees = (updateTaskDto.assigneeIds || []).sort();
+
+      const isDifferent =
+        JSON.stringify(oldAssignees) !== JSON.stringify(newAssignees);
+      if (isDifferent) {
+        changes.push('ASSIGNEES');
+      }
+    }
+
     Object.assign(task, updateTaskDto);
 
     const updatedTask = await this.tasksRepository.save(task);
-
-    // Emite evento de atualização
-    this.client.emit('task_updated', updatedTask);
+    this.client.emit('task_updated', { ...updatedTask, changes });
 
     return updatedTask;
   }
 
-  async remove(id: string) {
+  async remove(id: string, userId: string) {
+    const task = await this.tasksRepository.findOne({ where: { id } });
+    if (!task) {
+      throw new Error('Task not found');
+    }
+
+    if (task.userId !== userId) {
+      throw new ForbiddenException('You are not allowed to delete this task');
+    }
+
     return this.tasksRepository.delete(id);
   }
 }

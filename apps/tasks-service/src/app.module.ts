@@ -18,7 +18,7 @@ import { TasksModule } from './tasks/tasks.module';
         password: configService.get<string>('POSTGRES_PASSWORD'),
         database: configService.get<string>('POSTGRES_DB'),
         autoLoadEntities: true,
-        synchronize: true, // ⚠️ Cria as tabelas sozinho (Dev mode)
+        synchronize: true,
       }),
       inject: [ConfigService],
     }),
