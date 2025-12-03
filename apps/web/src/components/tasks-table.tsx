@@ -34,6 +34,20 @@ async function fetchTasks(filters: any) {
     return response.data;
 }
 
+const statusTranslation: Record<string, string> = {
+    [TaskStatus.TODO]: "A Fazer",
+    [TaskStatus.IN_PROGRESS]: "Em Progresso",
+    [TaskStatus.REVIEW]: "Revisão",
+    [TaskStatus.DONE]: "Concluída",
+};
+
+const priorityTranslation: Record<string, string> = {
+    [TaskPriority.LOW]: "Baixa",
+    [TaskPriority.MEDIUM]: "Média",
+    [TaskPriority.HIGH]: "Alta",
+    [TaskPriority.URGENT]: "Urgente",
+};
+
 export function TasksTable() {
     const [filters, setFilters] = useState({
         title: "",
@@ -81,11 +95,10 @@ export function TasksTable() {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="ALL">Todos</SelectItem>
-                        {Object.values(TaskStatus).map((status) => (
-                            <SelectItem key={status} value={status}>
-                                {status}
-                            </SelectItem>
-                        ))}
+                        <SelectItem value={TaskStatus.TODO}>A Fazer</SelectItem>
+                        <SelectItem value={TaskStatus.IN_PROGRESS}>Em Progresso</SelectItem>
+                        <SelectItem value={TaskStatus.REVIEW}>Revisão</SelectItem>
+                        <SelectItem value={TaskStatus.DONE}>Concluída</SelectItem>
                     </SelectContent>
                 </Select>
 
@@ -98,11 +111,10 @@ export function TasksTable() {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="ALL">Todas</SelectItem>
-                        {Object.values(TaskPriority).map((priority) => (
-                            <SelectItem key={priority} value={priority}>
-                                {priority}
-                            </SelectItem>
-                        ))}
+                        <SelectItem value={TaskPriority.LOW}>Baixa</SelectItem>
+                        <SelectItem value={TaskPriority.MEDIUM}>Média</SelectItem>
+                        <SelectItem value={TaskPriority.HIGH}>Alta</SelectItem>
+                        <SelectItem value={TaskPriority.URGENT}>Urgente</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
@@ -140,7 +152,9 @@ export function TasksTable() {
                                 >
                                     <TableCell className="font-medium">{task.title}</TableCell>
                                     <TableCell>
-                                        <Badge variant="outline">{task.status}</Badge>
+                                        <Badge variant="outline">
+                                            {statusTranslation[task.status] || task.status}
+                                        </Badge>
                                     </TableCell>
                                     <TableCell>
                                         <Badge
@@ -150,7 +164,7 @@ export function TasksTable() {
                                                     : "secondary"
                                             }
                                         >
-                                            {task.priority}
+                                            {priorityTranslation[task.priority] || task.priority}
                                         </Badge>
                                     </TableCell>
                                     <TableCell>

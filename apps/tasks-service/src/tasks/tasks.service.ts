@@ -29,6 +29,11 @@ export class TasksService {
   ) {}
 
   async addComment(taskId: string, userId: string, content: string) {
+    const task = await this.tasksRepository.findOne({ where: { id: taskId } });
+    if (!task) {
+      throw new Error('Task not found');
+    }
+
     const comment = this.commentsRepository.create({
       taskId,
       userId,
@@ -36,8 +41,14 @@ export class TasksService {
     });
     const savedComment = await this.commentsRepository.save(comment);
 
-    // Emit event for real-time updates
-    this.client.emit('comment_added', savedComment);
+    // Determine recipients: Owner + Assignees
+    const recipients = [...new Set([task.userId, ...(task.assigneeIds || [])])];
+
+    // Emit event for real-time updates with recipients
+    this.client.emit('comment_added', {
+      comment: savedComment,
+      recipients,
+    });
 
     return savedComment;
   }

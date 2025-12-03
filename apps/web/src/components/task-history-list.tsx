@@ -95,13 +95,25 @@ export function TaskHistoryList({ taskId }: TaskHistoryListProps) {
             console.log("Connected to WebSocket");
         });
 
-        socket.on("task_activity", (data: any) => {
-            console.log("Activity received:", data);
-            // Invalidate queries to refresh data
-            // Optimally we would append data manually, but invalidation is safer for now.
-            if (data.taskId === taskId || (data.task && data.task.id === taskId)) {
-                queryClient.invalidateQueries({ queryKey: ["task-history", taskId] });
-                queryClient.invalidateQueries({ queryKey: ["task-comments", taskId] });
+        socket.on("notification", (data: any) => {
+            console.log("Notification received:", data);
+
+            // Handle Comment Notification
+            if (data.type === 'COMMENT') {
+                if (data.taskId === taskId) {
+                    queryClient.invalidateQueries({ queryKey: ["task-history", taskId] });
+                    queryClient.invalidateQueries({ queryKey: ["task-comments", taskId] });
+                }
+            }
+            // Handle Task Update Notification (Status/Priority/Assignees)
+            else if (data.type === 'TASK_UPDATED' || data.type === 'TASK_CREATED') {
+                if (data.taskId === taskId) {
+                    // If we are viewing the task that was updated, refresh history
+                    queryClient.invalidateQueries({ queryKey: ["task-history", taskId] });
+                    // Also invalidate task details to show new status/priority
+                    queryClient.invalidateQueries({ queryKey: ["tasks"] }); // This might be too broad, but ensures list updates too
+                    // Ideally we invalidate ["task", taskId] if we had a specific query for details
+                }
             }
         });
 
