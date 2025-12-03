@@ -66,4 +66,22 @@ export class AuthController {
   refresh(@Body() body: RefreshTokenDto): Promise<LoginResponseDto> {
     return this.authService.refresh(body.refreshToken);
   }
+
+  @Post('logout')
+  @ApiOperation({ summary: 'Logout de usuário' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        userId: { type: 'string', example: 'uuid-do-usuario' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Logout realizado com sucesso',
+  })
+  logout(@Body() body: { userId: string }): Promise<{ message: string }> {
+    return this.authService.logout(body.userId);
+  }
 }

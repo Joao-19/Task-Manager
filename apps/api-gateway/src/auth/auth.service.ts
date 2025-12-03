@@ -80,4 +80,20 @@ export class AuthService {
       );
     }
   }
+
+  async logout(userId: string): Promise<{ message: string }> {
+    try {
+      const response = await lastValueFrom(
+        this.httpService.post(`${this.AUTH_SERVICE_URL}/auth/logout`, {
+          userId,
+        }),
+      );
+      return response.data;
+    } catch (error) {
+      throw new HttpException(
+        error.response?.data || 'Erro ao conectar no Auth Service',
+        error.response?.status || 500,
+      );
+    }
+  }
 }
