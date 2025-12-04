@@ -5,9 +5,10 @@ import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
@@ -27,20 +28,45 @@ function LoginPage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[400px]">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="login">Entrar</TabsTrigger>
-          <TabsTrigger value="register">Registrar</TabsTrigger>
-        </TabsList>
+      <div className="w-[400px]">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-4">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="login">Entrar</TabsTrigger>
+            <TabsTrigger value="register">Registrar</TabsTrigger>
+          </TabsList>
+        </Tabs>
 
-        <TabsContent value="login">
-          <LoginForm login={login} toast={toast} />
-        </TabsContent>
-
-        <TabsContent value="register">
-          <RegisterForm toast={toast} onSuccess={() => setActiveTab('login')} />
-        </TabsContent>
-      </Tabs>
+        <motion.div
+          layout
+          className="rounded-xl border bg-card text-card-foreground shadow overflow-hidden"
+          initial={false}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            {activeTab === 'login' ? (
+              <motion.div
+                key="login"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.2 }}
+              >
+                <LoginForm login={login} toast={toast} />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="register"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
+              >
+                <RegisterForm toast={toast} onSuccess={() => setActiveTab('login')} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </div>
     </div>
   );
 }
@@ -76,7 +102,7 @@ function LoginForm({ login, toast }: { login: any; toast: any }) {
   };
 
   return (
-    <Card>
+    <>
       <CardHeader>
         <CardTitle>Entrar</CardTitle>
         <CardDescription>Use seu email e senha para acessar.</CardDescription>
@@ -117,7 +143,7 @@ function LoginForm({ login, toast }: { login: any; toast: any }) {
           </div>
         </form>
       </CardContent>
-    </Card>
+    </>
   );
 }
 
@@ -197,7 +223,7 @@ function RegisterForm({ toast, onSuccess }: { toast: any; onSuccess: () => void 
   };
 
   return (
-    <Card>
+    <>
       <CardHeader>
         <CardTitle>Criar Conta</CardTitle>
         <CardDescription>Preencha os dados para se registrar.</CardDescription>
@@ -259,6 +285,6 @@ function RegisterForm({ toast, onSuccess }: { toast: any; onSuccess: () => void 
           </Button>
         </form>
       </CardContent>
-    </Card>
+    </>
   );
 }
