@@ -96,4 +96,42 @@ export class AuthService {
       );
     }
   }
+
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    try {
+      console.log('API-GATEWAY', email);
+      const response = await lastValueFrom(
+        this.httpService.post(`${this.AUTH_SERVICE_URL}/auth/forgot-password`, {
+          email,
+        }),
+      );
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        error.response?.data || 'Erro ao conectar no Auth Service',
+        error.response?.status || 500,
+      );
+    }
+  }
+
+  async resetPassword(
+    token: string,
+    newPassword: string,
+  ): Promise<{ message: string }> {
+    try {
+      const response = await lastValueFrom(
+        this.httpService.post(`${this.AUTH_SERVICE_URL}/auth/reset-password`, {
+          token,
+          newPassword,
+        }),
+      );
+      return response.data;
+    } catch (error) {
+      throw new HttpException(
+        error.response?.data || 'Erro ao conectar no Auth Service',
+        error.response?.status || 500,
+      );
+    }
+  }
 }

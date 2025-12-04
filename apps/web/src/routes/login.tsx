@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/auth-context';
 import { api } from '@/lib/api';
@@ -107,6 +107,14 @@ function LoginForm({ login, toast }: { login: any; toast: any }) {
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? 'Entrando...' : 'Entrar'}
           </Button>
+          <div className="text-center mt-2">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-primary hover:underline"
+            >
+              Esqueceu sua senha?
+            </Link>
+          </div>
         </form>
       </CardContent>
     </Card>

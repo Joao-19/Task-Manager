@@ -84,4 +84,45 @@ export class AuthController {
   logout(@Body() body: { userId: string }): Promise<{ message: string }> {
     return this.authService.logout(body.userId);
   }
+
+  @Post('forgot-password')
+  @ApiOperation({ summary: 'Solicitar reset de senha' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', example: 'usuario@email.com' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Email de recuperação enviado (se o email existir)',
+  })
+  forgotPassword(
+    @Body() body: { email: string },
+  ): Promise<{ message: string }> {
+    return this.authService.forgotPassword(body.email);
+  }
+
+  @Post('reset-password')
+  @ApiOperation({ summary: 'Redefinir senha com token' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        token: { type: 'string', example: 'uuid-token' },
+        newPassword: { type: 'string', example: 'NovaSenha123' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Senha redefinida com sucesso',
+  })
+  resetPassword(
+    @Body() body: { token: string; newPassword: string },
+  ): Promise<{ message: string }> {
+    return this.authService.resetPassword(body.token, body.newPassword);
+  }
 }
