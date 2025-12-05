@@ -5,7 +5,7 @@ import * as z from 'zod';
 import { TaskPriority } from '@repo/dtos';
 import { api } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/composables/UI/use-toast';
 
 import {
     Dialog,

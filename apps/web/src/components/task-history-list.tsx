@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Send } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import useComments, { type CommentItem } from "@/composables/Task/useComments";
+import useComments, { type CommentItem } from "@/composables/UseCases/Task/useComments";
 import { useAuth } from "@/context/auth-context";
 
 interface TaskHistoryListProps {

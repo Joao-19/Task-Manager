@@ -25,7 +25,7 @@ import { UserMultiSelect } from './user-multi-select';
 import { TaskHistoryList } from './task-history-list';
 import { api } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/composables/UI/use-toast';
 import { useAuth } from '@/context/auth-context';
 
 interface Task {

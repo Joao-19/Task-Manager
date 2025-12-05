@@ -2,7 +2,7 @@ import { createFileRoute, redirect, Outlet, useNavigate } from '@tanstack/react-
 import { useEffect } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from '@/context/auth-context';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/composables/UI/use-toast';
 import { ModeToggle } from '@/components/mode-toggle';
 import { FiLogOut } from 'react-icons/fi';
 import { Button } from '@/components/ui/button';
