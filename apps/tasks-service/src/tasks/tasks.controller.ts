@@ -14,7 +14,7 @@ import { TasksService } from './tasks.service';
 import { GetTasksFilterDto, UpdateTaskDto } from '@repo/dtos';
 
 @Controller('tasks')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt')) // Defense in Depth: Validate JWT even on internal network
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
