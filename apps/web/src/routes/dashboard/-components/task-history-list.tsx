@@ -5,6 +5,7 @@ import { ptBR } from "date-fns/locale";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/buttons/button";
 import { Input } from "@/components/ui/form/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2, Send } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import useComments, { type CommentItem } from "@/composables/UseCases/Task/useComments";
@@ -123,7 +124,19 @@ export function TaskHistoryList({ taskId }: TaskHistoryListProps) {
     };
 
     if (isLoadingHistory || isLoadingComments) {
-        return <div className="text-sm text-muted-foreground p-4">Carregando atividade...</div>;
+        return (
+            <div className="flex flex-col h-[400px] p-4 space-y-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="flex flex-col space-y-2">
+                        <div className="flex items-center gap-2">
+                            <Skeleton className="h-3 w-20" />
+                            <Skeleton className="h-3 w-12" />
+                        </div>
+                        <Skeleton className="h-8 w-3/4 rounded-md" />
+                    </div>
+                ))}
+            </div>
+        );
     }
 
     return (

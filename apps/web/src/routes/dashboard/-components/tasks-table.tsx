@@ -8,6 +8,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/form/input";
 import {
     Select,
@@ -132,11 +133,15 @@ export function TasksTable() {
                     </TableHeader>
                     <TableBody>
                         {isLoading ? (
-                            <TableRow>
-                                <TableCell colSpan={5} className="text-center h-24">
-                                    Carregando...
-                                </TableCell>
-                            </TableRow>
+                            Array.from({ length: 5 }).map((_, index) => (
+                                <TableRow key={index}>
+                                    <TableCell><Skeleton className="h-5 w-[150px]" /></TableCell>
+                                    <TableCell><Skeleton className="h-5 w-[80px]" /></TableCell>
+                                    <TableCell><Skeleton className="h-5 w-[60px]" /></TableCell>
+                                    <TableCell><Skeleton className="h-5 w-[100px]" /></TableCell>
+                                    <TableCell className="text-right"><Skeleton className="h-8 w-16 ml-auto" /></TableCell>
+                                </TableRow>
+                            ))
                         ) : tasks.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={5} className="text-center h-24">

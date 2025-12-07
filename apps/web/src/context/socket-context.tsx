@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { io, Socket } from "socket.io-client";
-import { useAuthStore } from "../store/auth.store";
+import { useAuth } from "./auth-context";
 
 interface SocketContextType {
     socket: Socket | null;
@@ -13,7 +13,7 @@ const SocketContext = createContext<SocketContextType | undefined>(undefined);
 export function SocketProvider({ children }: { children: ReactNode }) {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [isConnected, setIsConnected] = useState(false);
-    const { token, logout } = useAuthStore();
+    const { token, logout } = useAuth();
 
     useEffect(() => {
         // Only connect if we have a token
