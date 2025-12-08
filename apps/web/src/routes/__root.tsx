@@ -1,7 +1,9 @@
 import { createRootRouteWithContext, Link, Outlet } from '@tanstack/react-router';
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { Toaster } from '@/components/ui/toaster';
 import type { AuthContextType } from '@/context/auth-context';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/buttons/button';
+import { SocketProvider } from '@/context/socket-context';
 
 interface MyRouterContext {
   auth: AuthContextType;
@@ -9,13 +11,16 @@ interface MyRouterContext {
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: () => (
-    <>
+    <SocketProvider>
       {/* O router joga as telas aqui */}
       <Outlet />
 
       {/* O Toaster fica aqui para funcionar em qualquer página, pode colocar um popUp aqui tbm, ai fica a nivel global, por cima de geral*/}
       <Toaster />
-    </>
+      {import.meta.env.VITE_ROUTER_DEVTOOLS === 'true' && (
+        <TanStackRouterDevtools initialIsOpen={false} />
+      )}
+    </SocketProvider>
   ),
   notFoundComponent: () => {
     return (

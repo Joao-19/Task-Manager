@@ -8,21 +8,22 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/form/input";
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/form/select";
+import { Button } from "@/components/ui/buttons/button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { TaskStatus, TaskPriority } from "@repo/dtos";
 import { TaskDetailsDialog } from "./task-details-dialog";
 
-import { api } from "@/lib/api";
+import { axiosInstance as api } from "@/composables/Services/Http/use-http";
 
 async function fetchTasks(filters: any) {
     const params = new URLSearchParams();
@@ -132,11 +133,15 @@ export function TasksTable() {
                     </TableHeader>
                     <TableBody>
                         {isLoading ? (
-                            <TableRow>
-                                <TableCell colSpan={5} className="text-center h-24">
-                                    Carregando...
-                                </TableCell>
-                            </TableRow>
+                            Array.from({ length: 5 }).map((_, index) => (
+                                <TableRow key={index}>
+                                    <TableCell><Skeleton className="h-5 w-[150px]" /></TableCell>
+                                    <TableCell><Skeleton className="h-5 w-[80px]" /></TableCell>
+                                    <TableCell><Skeleton className="h-5 w-[60px]" /></TableCell>
+                                    <TableCell><Skeleton className="h-5 w-[100px]" /></TableCell>
+                                    <TableCell className="text-right"><Skeleton className="h-8 w-16 ml-auto" /></TableCell>
+                                </TableRow>
+                            ))
                         ) : tasks.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={5} className="text-center h-24">

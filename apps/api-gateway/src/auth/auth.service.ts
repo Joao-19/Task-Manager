@@ -35,6 +35,7 @@ export class AuthService {
       );
       return response.data;
     } catch (error) {
+      console.log(error);
       throw new HttpException(
         error.response?.data || 'Erro ao conectar no Auth Service',
         error.response?.status || 500,
@@ -84,8 +85,6 @@ export class AuthService {
 
   async logout(form: LogoutDto): Promise<{ message: string }> {
     try {
-      console.log(form);
-
       const { userId, token } = form;
       const response = await lastValueFrom(
         this.httpService.post(
