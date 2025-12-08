@@ -9,7 +9,6 @@ import {
   UserResponseDto,
   LogoutDto,
 } from '@repo/dtos';
-import { log } from 'console';
 
 @Injectable()
 export class AuthService {
@@ -86,8 +85,6 @@ export class AuthService {
 
   async logout(form: LogoutDto): Promise<{ message: string }> {
     try {
-      console.log(form);
-
       const { userId, token } = form;
       const response = await lastValueFrom(
         this.httpService.post(
