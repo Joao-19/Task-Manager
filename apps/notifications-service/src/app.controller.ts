@@ -13,9 +13,13 @@ export class AppController {
 
   @EventPattern('task_created')
   async handleTaskCreated(@Payload() data: TaskCreatedEventDto) {
-    const recipients = [...new Set([data.userId, ...(data.assigneeIds || [])])];
+    // Task Owner (data.userId) + Assignees
+    const candidates = [data.userId, ...(data.assigneeIds || [])];
+    const uniqueCandidates = [...new Set(candidates)];
 
-    // Persist and Notify for each recipient
+    // Exclude Actor (who created the task)
+    const recipients = uniqueCandidates.filter((id) => id !== data.actorId);
+
     for (const userId of recipients) {
       await this.appService.create({
         userId,
@@ -36,7 +40,11 @@ export class AppController {
       return;
     }
 
-    const recipients = [...new Set([data.userId, ...(data.assigneeIds || [])])];
+    const candidates = [data.userId, ...(data.assigneeIds || [])];
+    const uniqueCandidates = [...new Set(candidates)];
+
+    // Exclude Actor
+    const recipients = uniqueCandidates.filter((id) => id !== data.actorId);
 
     for (const userId of recipients) {
       await this.appService.create({
@@ -69,6 +77,7 @@ export class AppController {
   // HTTP Endpoints exposed via Gateway (Hybrid Application)
   @Get('notifications')
   getNotifications(@Query('userId') userId: string) {
+    console.log('NOTIFICATIONS CONTROLLER - userId:', userId);
     return this.appService.findAll(userId);
   }
 

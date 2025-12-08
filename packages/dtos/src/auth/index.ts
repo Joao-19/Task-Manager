@@ -4,4 +4,4 @@ export * from "./refresh-token.dto";
 export * from "./forgot-password.dto";
 export * from "./reset-password.dto";
 export * from "./logout.dto";
-export * from "./request-with-user.dto";
+export * from "./authenticated-request.interface";

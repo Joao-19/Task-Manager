@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull, Not } from 'typeorm';
 import { Notification } from './entities/notification.entity';
 import { NotificationsGateway } from './notifications.gateway';
 
@@ -27,10 +27,19 @@ export class AppService {
   }
 
   async findAll(userId: string) {
-    return this.notificationsRepository.find({
-      where: { userId },
+    console.log('NOTIFICATIONS SERVICE - findAll userId:', userId);
+    const pending = await this.notificationsRepository.find({
+      where: { userId, readAt: IsNull() },
       order: { createdAt: 'DESC' },
     });
+
+    const lastRead = await this.notificationsRepository.find({
+      where: { userId, readAt: Not(IsNull()) },
+      order: { createdAt: 'DESC' },
+      take: 3,
+    });
+
+    return [...pending, ...lastRead];
   }
 
   async markAsRead(id: string) {

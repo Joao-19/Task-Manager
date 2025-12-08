@@ -9,6 +9,7 @@ import {
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { NotificationsService } from './notifications.service';
 import { AuthGuard } from '@nestjs/passport';
+import type { AuthenticatedRequest } from '@repo/dtos';
 
 @ApiTags('Notifications')
 @ApiBearerAuth()
@@ -19,8 +20,8 @@ export class NotificationsController {
 
   @Get()
   @ApiOperation({ summary: 'Get user notifications' })
-  async getNotifications(@Request() req: any) {
-    return this.notificationsService.findAll(req.user.sub);
+  async getNotifications(@Request() req: AuthenticatedRequest) {
+    return this.notificationsService.findAll(req.user.userId);
   }
 
   @Patch(':id/read')

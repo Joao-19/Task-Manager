@@ -110,7 +110,7 @@ export class TasksService {
       action: 'CREATED',
     });
 
-    this.client.emit('task_created', savedTask);
+    this.client.emit('task_created', { ...savedTask, actorId: userId });
 
     return savedTask;
   }
@@ -314,7 +314,11 @@ export class TasksService {
       assigneeIds: updatedTask.assignees?.map((a) => a.userId) || [],
     };
 
-    this.client.emit('task_updated', { ...responseTask, changes });
+    this.client.emit('task_updated', {
+      ...responseTask,
+      changes,
+      actorId: userId,
+    });
 
     return responseTask;
   }
