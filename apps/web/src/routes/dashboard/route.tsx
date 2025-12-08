@@ -1,11 +1,10 @@
 import { createFileRoute, redirect, Outlet, useNavigate } from '@tanstack/react-router';
-
 import { useNotifications } from '@/composables/UseCases/Notification/useNotifications';
 import { useAuth } from '@/context/auth-context';
-
 import { ModeToggle } from '@/components/mode-toggle';
 import { FiLogOut } from 'react-icons/fi';
 import { Button } from '@/components/ui/buttons/button';
+import { NotificationDropdown } from '@/components/notification-dropdown';
 
 export const Route = createFileRoute('/dashboard')({
   beforeLoad: ({ context }) => {
@@ -36,6 +35,7 @@ function AuthenticatedLayout() {
           <div className="text-sm text-muted-foreground">
             ID: {userId?.slice(0, 8)}...
           </div>
+          <NotificationDropdown />
           <ModeToggle />
           <Button
             variant="outline"
