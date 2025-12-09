@@ -105,9 +105,16 @@ services:
     ports: # Não expor - apenas comunicação interna
       - "3004:3004"
     depends_on:
+      db:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
       RABBITMQ_URL: ${RABBITMQ_URL}
       CORS_ORIGIN: ${CORS_ORIGIN}
       JWT_SECRET: ${JWT_SECRET}
@@ -159,6 +166,7 @@ services:
       # O Gateway chama os serviços pelos nomes de container
       AUTH_SERVICE_URL: http://auth-service:3002
       TASKS_SERVICE_URL: http://tasks-service:3003
+      NOTIFICATIONS_SERVICE_URL: http://notifications-service:3004
       JWT_SECRET: ${JWT_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}

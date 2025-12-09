@@ -22,4 +22,9 @@ export class TaskCreatedEventDto {
   @IsString({ each: true })
   @IsOptional()
   assigneeIds?: string[];
+
+  @ApiPropertyOptional({ description: "User ID who performed the action" })
+  @IsString()
+  @IsOptional()
+  actorId?: string;
 }

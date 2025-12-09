@@ -27,6 +27,7 @@ import {
   GetTaskHistoryDto,
   CreateCommentDto,
 } from '@repo/dtos';
+import type { AuthenticatedRequest } from '@repo/dtos';
 
 @ApiTags('Tasks')
 @ApiBearerAuth()
@@ -44,7 +45,7 @@ export class TasksController {
   })
   create(
     @Body() body: CreateTaskDto,
-    @Request() req: any,
+    @Request() req: AuthenticatedRequest,
     @Headers('authorization') auth: string,
   ) {
     const userId = req.user.userId;
@@ -62,7 +63,7 @@ export class TasksController {
   })
   findAll(
     @Query() filters: GetTasksFilterDto,
-    @Request() req: any,
+    @Request() req: AuthenticatedRequest,
     @Headers('authorization') auth: string,
   ) {
     const userId = req.user.userId;
@@ -94,7 +95,7 @@ export class TasksController {
   update(
     @Param('id') id: string,
     @Body() body: UpdateTaskDto,
-    @Request() req: any,
+    @Request() req: AuthenticatedRequest,
     @Headers('authorization') auth: string,
   ) {
     const userId = req.user.userId;
@@ -111,7 +112,7 @@ export class TasksController {
   })
   remove(
     @Param('id') id: string,
-    @Request() req: any,
+    @Request() req: AuthenticatedRequest,
     @Headers('authorization') auth: string,
   ) {
     const userId = req.user.userId;

@@ -28,4 +28,9 @@ export class TaskUpdatedEventDto {
   @IsString({ each: true })
   @IsOptional()
   changes?: string[];
+
+  @ApiPropertyOptional({ description: "User ID who performed the action" })
+  @IsString()
+  @IsOptional()
+  actorId?: string;
 }
