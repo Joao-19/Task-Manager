@@ -804,6 +804,83 @@ pnpm --filter "*-service" test:cov
 
 ---
 
+## 🚀 Possíveis Features Futuras
+
+### Melhorias de UX
+
+- 🔄 **Filtros Compostos**
+  - Multi-select para status (selecionar múltiplos status simultaneamente)
+  - Multi-select para prioridades (filtrar por várias prioridades ao mesmo tempo)
+  - Filtros combinados (ex: Alta/Urgente + Em Progresso/Em Revisão)
+  - Salvar combinações de filtros favoritas
+
+- 🗑️ **Gerenciamento de Tarefas**
+  - Soft delete (marcar como deletada ao invés de remover permanentemente)
+  - Hard delete com confirmação dupla
+  - Restaurar tarefas deletadas (lixeira)
+  - Arquivar tarefas concluídas
+
+- 👤 **Tela de Perfil de Usuário**
+  - Editar informações pessoais (nome, email, foto)
+  - Alterar senha
+  - Configurações de notificação
+  - Avatar/foto de perfil com upload
+  - Histórico de atividades
+  - Estatísticas pessoais (tarefas criadas, concluídas, etc.)
+
+### Hierarquia Organizacional
+
+- 🏢 **Modelo Multi-tenant**
+  ```
+  Empresa (Tenant)
+    └─ Projetos
+        └─ Tarefas
+            └─ Sub-tarefas
+  ```
+- **Benefícios:**
+  - Isolamento de dados por empresa
+  - Gerenciamento de múltiplos projetos
+  - Relatórios por projeto/empresa
+  - Métricas e dashboards por hierarquia
+
+### Sistema RBAC (Role-Based Access Control)
+
+- 👥 **Roles e Permissões**
+  - **Owner** - Controle total da empresa/projeto
+  - **Admin** - Gerenciar usuários e projetos
+  - **Manager** - Criar e atribuir tarefas, ver relatórios
+  - **Member** - Criar e editar suas tarefas
+  - **Viewer** - Apenas visualização
+
+- **Permissões Granulares:**
+  - `tasks:create`, `tasks:read`, `tasks:update`, `tasks:delete`
+  - `projects:manage`, `users:invite`, `reports:view`
+  - Permissões customizáveis por empresa
+
+### Outras Features
+
+- 📊 **Analytics & Relatórios**
+  - Dashboard com métricas (tarefas por status, tempo médio, etc.)
+  - Gráficos de produtividade
+  - Exportação de relatórios (PDF, CSV)
+
+- 🔔 **Notificações Avançadas**
+  - Preferências de notificação por usuário
+  - Digest diário/semanal via email
+  - Integração com Slack/Discord
+
+- 📱 **Mobile App**
+  - React Native para iOS/Android
+  - Notificações push
+  - Modo offline
+
+- 🔍 **Busca Avançada**
+  - Full-text search com Elasticsearch
+  - Busca semântica
+  - Filtros salvos e compartilháveis
+
+---
+
 ## 🤝 Contribuindo
 
 Este é um projeto de desafio, mas sugestões são bem-vindas!
