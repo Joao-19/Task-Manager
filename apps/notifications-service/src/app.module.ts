@@ -18,7 +18,11 @@ import { Notification } from './entities/notification.entity';
           configService.get('DATABASE_URL') ||
           `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}:${process.env.POSTGRES_PORT}/${process.env.POSTGRES_DB}`,
         autoLoadEntities: true,
-        synchronize: true, // Dev mode
+        // Sync apenas em desenvolvimento
+        synchronize: configService.get<string>('NODE_ENV') !== 'production',
+        // Migrations para produção
+        migrations: ['dist/migrations/*.js'],
+        migrationsRun: configService.get<string>('NODE_ENV') === 'production',
       }),
       inject: [ConfigService],
     }),
