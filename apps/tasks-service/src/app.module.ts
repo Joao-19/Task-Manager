@@ -32,7 +32,11 @@ import { JwtStrategy } from './auth/strategies/jwt.strategy';
         password: configService.get<string>('POSTGRES_PASSWORD'),
         database: configService.get<string>('POSTGRES_DB'),
         autoLoadEntities: true,
-        synchronize: true,
+        // Sync apenas em desenvolvimento
+        synchronize: configService.get<string>('NODE_ENV') !== 'production',
+        // Migrations para produção
+        migrations: ['dist/migrations/*.js'],
+        migrationsRun: configService.get<string>('NODE_ENV') === 'production',
       }),
       inject: [ConfigService],
     }),

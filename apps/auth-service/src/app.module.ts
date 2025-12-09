@@ -12,7 +12,7 @@ import { AuthModule } from './auth/auth.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    
+
     // 2. Configura a conexão com o Banco
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -24,13 +24,17 @@ import { AuthModule } from './auth/auth.module';
         password: configService.get<string>('POSTGRES_PASSWORD'),
         database: configService.get<string>('POSTGRES_DB'),
         autoLoadEntities: true,
-        synchronize: true, // ⚠️ Apenas para desenvolvimento (cria tabelas sozinho)
+        // Sync apenas em desenvolvimento
+        synchronize: configService.get<string>('NODE_ENV') !== 'production',
+        // Migrations para produção
+        migrations: ['dist/migrations/*.js'],
+        migrationsRun: configService.get<string>('NODE_ENV') === 'production',
       }),
       inject: [ConfigService],
     }),
-    
+
     UsersModule,
-    
+
     AuthModule,
   ],
   controllers: [AppController],

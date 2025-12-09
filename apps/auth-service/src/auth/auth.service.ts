@@ -27,13 +27,7 @@ export class AuthService implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   async onModuleInit() {
-    try {
-      await this.emailClient.connect();
-    } catch (error) {
-      console.error('Error connecting to EMAIL_SERVICE (RabbitMQ):', error);
-      // Non-blocking error: allow service to start even if RabbitMQ is temporarily down.
-      // ClientProxy will attempt to reconnect on request.
-    }
+    await this.emailClient.connect();
   }
 
   async onModuleDestroy() {
@@ -50,11 +44,7 @@ export class AuthService implements OnModuleInit, OnModuleDestroy {
       throw new ForbiddenException('Invalid email or password');
     }
 
-    const tokens = await this.getTokens(
-      validUser.id,
-      validUser.email,
-      validUser.username,
-    );
+    const tokens = await this.getTokens(validUser.id, validUser.email);
     await this.updateRefreshToken(validUser.id, tokens.refreshToken);
 
     return new LoginResponseDto(
@@ -79,7 +69,7 @@ export class AuthService implements OnModuleInit, OnModuleDestroy {
     );
     if (!tokenMatches) throw new ForbiddenException('Access Denied');
 
-    const tokens = await this.getTokens(user.id, user.email, user.username);
+    const tokens = await this.getTokens(user.id, user.email);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
     return tokens;
   }
@@ -89,10 +79,10 @@ export class AuthService implements OnModuleInit, OnModuleDestroy {
     await this.usersService.update(userId, { currentRefreshToken: hash });
   }
 
-  async getTokens(userId: string, email: string, username: string) {
+  async getTokens(userId: string, email: string) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
-        { sub: userId, email, username },
+        { sub: userId, email },
         {
           secret: this.configService.get<string>('JWT_SECRET'),
           expiresIn: (this.configService.get<string>('JWT_EXPIRES_IN') ||
@@ -100,7 +90,7 @@ export class AuthService implements OnModuleInit, OnModuleDestroy {
         },
       ),
       this.jwtService.signAsync(
-        { sub: userId, email, username },
+        { sub: userId, email },
         {
           secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
           expiresIn: (this.configService.get<string>(
