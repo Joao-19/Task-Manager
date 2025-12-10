@@ -5,6 +5,7 @@ import {
   Param,
   UseGuards,
   Request,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { NotificationsService } from './notifications.service';
@@ -27,7 +28,7 @@ export class NotificationsController {
     const token = req.headers.authorization?.replace('Bearer ', '');
 
     if (!token) {
-      throw new Error('Authorization token is required');
+      throw new UnauthorizedException('Authorization token is required');
     }
 
     return this.notificationsService.findAll(req.user.userId, token);
@@ -42,7 +43,7 @@ export class NotificationsController {
     const token = req.headers.authorization?.replace('Bearer ', '');
 
     if (!token) {
-      throw new Error('Authorization token is required');
+      throw new UnauthorizedException('Authorization token is required');
     }
 
     return this.notificationsService.markAsRead(id, token);
