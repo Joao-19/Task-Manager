@@ -9,6 +9,8 @@ interface MyRouterContext {
   auth: AuthContextType;
 }
 
+import { GlobalErrorComponent } from '@/components/global-error';
+
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: () => (
     <SocketProvider>
@@ -22,6 +24,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       )}
     </SocketProvider>
   ),
+  errorComponent: GlobalErrorComponent, // Tratamento Global de Erros do Router
   notFoundComponent: () => {
     return (
       <div className="h-screen w-full flex flex-col items-center justify-center bg-slate-50 gap-4">
