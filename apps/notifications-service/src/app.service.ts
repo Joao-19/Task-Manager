@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, IsNull, Not } from 'typeorm';
 import { PinoLogger, InjectPinoLogger } from 'nestjs-pino';
 import { Notification } from './entities/notification.entity';
 import { NotificationsGateway } from './notifications.gateway';
+import type { EventPayload } from './types';
 
 @Injectable()
 export class AppService {
@@ -12,6 +13,7 @@ export class AppService {
     private readonly logger: PinoLogger,
     @InjectRepository(Notification)
     private notificationsRepository: Repository<Notification>,
+    @Inject(forwardRef(() => NotificationsGateway))
     private notificationsGateway: NotificationsGateway,
   ) {}
 
@@ -75,5 +77,9 @@ export class AppService {
     }
 
     return { success: true, count: notifications.length };
+  }
+
+  emitEvent(userId: string, event: string, payload: EventPayload) {
+    this.notificationsGateway.emitToUser(userId, event, payload);
   }
 }

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
     Table,
     TableBody,
@@ -23,7 +23,9 @@ import { format } from "date-fns";
 import { TaskStatus, TaskPriority } from "@repo/dtos";
 import { TaskDetailsDialog } from "./task-details-dialog";
 
+import { useSocketContext } from "@/context/socket-context";
 import { axiosInstance as api } from "@/composables/Services/Http/use-http";
+import type { GetTasksFilterDto, TaskResponseDto } from "@repo/dtos";
 
 async function fetchTasks(filters: any) {
     const params = new URLSearchParams();
@@ -50,7 +52,13 @@ const priorityTranslation: Record<string, string> = {
 };
 
 export function TasksTable() {
-    const [filters, setFilters] = useState({
+    const [filters, setFilters] = useState<{
+        title: string;
+        status: string;
+        priority: string;
+        page: number;
+        limit: number;
+    }>({
         title: "",
         status: "",
         priority: "",
@@ -58,19 +66,40 @@ export function TasksTable() {
         limit: 10,
     });
 
-    const [selectedTask, setSelectedTask] = useState<any>(null);
+    const [selectedTask, setSelectedTask] = useState<TaskResponseDto | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    const { socket } = useSocketContext();
+    const queryClient = useQueryClient();
 
     const { data, isLoading, refetch } = useQuery({
         queryKey: ["tasks", filters],
         queryFn: () => fetchTasks(filters),
     });
 
+    // Real-time updates
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleTaskUpdate = () => {
+            // Invalidate query to refetch list
+            queryClient.invalidateQueries({ queryKey: ["tasks"] });
+        };
+
+        socket.on("task:created", handleTaskUpdate);
+        socket.on("task:updated", handleTaskUpdate);
+
+        return () => {
+            socket.off("task:created", handleTaskUpdate);
+            socket.off("task:updated", handleTaskUpdate);
+        };
+    }, [socket, queryClient]);
+
     const handleFilterChange = (key: string, value: string) => {
         setFilters((prev) => ({ ...prev, [key]: value, page: 1 }));
     };
 
-    const handleEditClick = (task: any) => {
+    const handleEditClick = (task: TaskResponseDto) => {
         setSelectedTask(task);
         setIsDialogOpen(true);
     };
@@ -149,7 +178,7 @@ export function TasksTable() {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            tasks.map((task: any) => (
+                            tasks.map((task: TaskResponseDto) => (
                                 <TableRow
                                     key={task.id}
                                     className="cursor-pointer hover:bg-muted/50"

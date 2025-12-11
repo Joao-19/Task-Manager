@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { PinoLogger, InjectPinoLogger } from 'nestjs-pino';
+import { isHttpError } from '../types';
 import {
   CreateUserDto,
   LoginDto,
@@ -36,12 +37,19 @@ export class AuthService {
         ),
       );
       return response.data;
-    } catch (error) {
-      this.logger.error({ error: error.message }, 'Login failed');
-      throw new HttpException(
-        error.response?.data || 'Erro ao conectar no Auth Service',
-        error.response?.status || 500,
-      );
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error({ error: errorMessage }, 'Login failed');
+      const errorData =
+        isHttpError(error) && error.response?.data
+          ? error.response.data
+          : 'Erro no Auth Service';
+      const errorStatus =
+        isHttpError(error) && error.response?.status
+          ? error.response.status
+          : 500;
+      throw new HttpException(errorData, errorStatus);
     }
   }
 
@@ -54,12 +62,19 @@ export class AuthService {
         ),
       );
       return response.data;
-    } catch (error) {
-      this.logger.error({ error: error.message }, 'Registration failed');
-      throw new HttpException(
-        error.response?.data || 'Erro ao conectar no Auth Service',
-        error.response?.status || 500,
-      );
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error({ error: errorMessage }, 'Registration failed');
+      const errorData =
+        isHttpError(error) && error.response?.data
+          ? error.response.data
+          : 'Erro no Auth Service';
+      const errorStatus =
+        isHttpError(error) && error.response?.status
+          ? error.response.status
+          : 500;
+      throw new HttpException(errorData, errorStatus);
     }
   }
 
@@ -93,7 +108,7 @@ export class AuthService {
           `${this.AUTH_SERVICE_URL}/auth/logout`,
           {},
           {
-            headers: { Authorization: token },
+            headers: { Authorization: `Bearer ${token}` },
           },
         ),
       );

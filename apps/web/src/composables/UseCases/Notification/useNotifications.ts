@@ -5,13 +5,18 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "@/composables/Services/Http";
 import { useAuth } from "@/context/auth-context";
 
+export interface NotificationMetadata {
+  taskId?: string;
+  [key: string]: any;
+}
+
 export interface Notification {
   id: string;
   userId: string;
   title: string;
   content?: string;
   type: string;
-  metadata?: any;
+  metadata?: NotificationMetadata;
   readAt?: string;
   createdAt: string;
 }
@@ -26,7 +31,7 @@ export function useNotifications() {
   const queryClient = useQueryClient();
 
   // 1. Fetch History (Pull)
-  const { data: notifications = [] } = useQuery<Notification[]>({
+  const { data: notifications = [], isLoading } = useQuery<Notification[]>({
     queryKey: ["notifications", userId],
     queryFn: async () => {
       if (!userId) return [];
@@ -69,5 +74,5 @@ export function useNotifications() {
     };
   }, [isConnected, on, toast, queryClient, userId]);
 
-  return { isConnected, notifications };
+  return { isConnected, notifications, isLoading };
 }

@@ -66,7 +66,7 @@ export class TasksService {
     // Emit event for real-time updates with task title
     this.client.emit('comment_added', {
       comment: savedComment,
-      taskTitle: task.title, // ✅ Adiciona o título da task
+      taskTitle: task.title,
       taskId: task.id,
       recipients,
     });
@@ -115,7 +115,14 @@ export class TasksService {
       action: 'CREATED',
     });
 
-    this.client.emit('task_created', { ...savedTask, actorId: userId });
+    // Map assignees to IDs for the event payload
+    const assigneeIds = savedTask.assignees?.map((a) => a.userId) || [];
+
+    this.client.emit('task_created', {
+      ...savedTask,
+      assigneeIds, // ✅ Agora explícito para o Notifications Service
+      actorId: userId,
+    });
 
     return savedTask;
   }

@@ -4,8 +4,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { LoggerModule } from 'nestjs-pino';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { TasksModule } from './tasks/tasks.module';
 import { JwtStrategy } from './auth/strategies/jwt.strategy';
 
@@ -54,7 +52,7 @@ import { JwtStrategy } from './auth/strategies/jwt.strategy';
     }),
     TasksModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, JwtStrategy],
+  controllers: [],
+  providers: [JwtStrategy],
 })
 export class AppModule {}

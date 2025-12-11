@@ -12,6 +12,7 @@ import { PinoLogger, InjectPinoLogger } from 'nestjs-pino';
 import { AppService } from './app.service';
 import { JwtService } from '@nestjs/jwt';
 import { Server, Socket } from 'socket.io';
+import type { NotificationPayload, EventPayload } from './types';
 
 @WebSocketGateway({
   cors: {
@@ -89,21 +90,25 @@ export class NotificationsGateway
     }
   }
 
-  notifyUser(userId: string, payload: any) {
-    const socketId = this.userSockets.get(userId);
-
-    if (socketId) {
-      this.server.to(socketId).emit('notification', payload);
-      this.logger.info({ userId }, 'Notification sent via WebSocket');
-    } else {
-      this.logger.debug({ userId }, 'User not connected to WebSocket');
-    }
+  notifyUser(userId: string, payload: NotificationPayload) {
+    this.emitToUser(userId, 'notification', payload);
   }
 
-  notifyUsers(userIds: string[], payload: any) {
+  notifyUsers(userIds: string[], payload: NotificationPayload) {
     userIds.forEach((userId) => {
       this.notifyUser(userId, payload);
     });
+  }
+
+  emitToUser(userId: string, event: string, payload: EventPayload) {
+    const socketId = this.userSockets.get(userId);
+
+    if (socketId) {
+      this.server.to(socketId).emit(event, payload);
+      this.logger.info({ userId, event }, 'Event sent via WebSocket');
+    } else {
+      this.logger.debug({ userId, event }, 'User not connected to WebSocket');
+    }
   }
 
   @SubscribeMessage('mark_as_read_by_task')
