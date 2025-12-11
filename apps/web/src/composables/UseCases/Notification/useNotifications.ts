@@ -26,7 +26,7 @@ export function useNotifications() {
   const queryClient = useQueryClient();
 
   // 1. Fetch History (Pull)
-  const { data: notifications = [] } = useQuery<Notification[]>({
+  const { data: notifications = [], isLoading } = useQuery<Notification[]>({
     queryKey: ["notifications", userId],
     queryFn: async () => {
       if (!userId) return [];
@@ -69,5 +69,5 @@ export function useNotifications() {
     };
   }, [isConnected, on, toast, queryClient, userId]);
 
-  return { isConnected, notifications };
+  return { isConnected, notifications, isLoading };
 }
