@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/buttons/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Bell } from 'lucide-react';
 import {
     useNotifications,
@@ -19,7 +20,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export function NotificationDropdown() {
-    const { notifications } = useNotifications();
+    const { notifications, isLoading } = useNotifications();
 
     // Filter Logic
     const pending = notifications.filter((n) => !n.readAt);
@@ -53,28 +54,49 @@ export function NotificationDropdown() {
                 <DropdownMenuLabel>Notificações</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <ScrollArea className="h-[300px]">
-                    {/* Pendentes */}
-                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                        Novas
-                    </div>
-                    {pending.length === 0 && (
-                        <div className="py-2 text-center text-sm text-muted-foreground">
-                            Nenhuma nova notificação
-                        </div>
+                    {isLoading ? (
+                        // Skeleton loaders while loading
+                        <>
+                            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                                Novas
+                            </div>
+                            {Array.from({ length: 3 }).map((_, index) => (
+                                <div key={index} className="flex-col items-start gap-1 p-3">
+                                    <div className="flex w-full justify-between gap-2">
+                                        <Skeleton className="h-4 w-32" />
+                                        <Skeleton className="h-3 w-16" />
+                                    </div>
+                                    <Skeleton className="h-3 w-full mt-1" />
+                                    <Skeleton className="h-3 w-3/4 mt-1" />
+                                </div>
+                            ))}
+                        </>
+                    ) : (
+                        <>
+                            {/* Pendentes */}
+                            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                                Novas
+                            </div>
+                            {pending.length === 0 && (
+                                <div className="py-2 text-center text-sm text-muted-foreground">
+                                    Nenhuma nova notificação
+                                </div>
+                            )}
+                            {pending.map((item) => (
+                                <NotificationItem key={item.id} item={item} />
+                            ))}
+
+                            <DropdownMenuSeparator />
+
+                            {/* Lidas (Últimas 3) */}
+                            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                                Anteriores
+                            </div>
+                            {read.map((item) => (
+                                <NotificationItem key={item.id} item={item} isRead />
+                            ))}
+                        </>
                     )}
-                    {pending.map((item) => (
-                        <NotificationItem key={item.id} item={item} />
-                    ))}
-
-                    <DropdownMenuSeparator />
-
-                    {/* Lidas (Últimas 3) */}
-                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                        Anteriores
-                    </div>
-                    {read.map((item) => (
-                        <NotificationItem key={item.id} item={item} isRead />
-                    ))}
                 </ScrollArea>
             </DropdownMenuContent>
         </DropdownMenu>

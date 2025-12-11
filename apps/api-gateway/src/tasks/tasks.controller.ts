@@ -7,6 +7,7 @@ import {
   Get,
   Param,
   Patch,
+  Put,
   Delete,
   Query,
   Headers,
@@ -86,13 +87,34 @@ export class TasksController {
 
   @UseGuards(AuthGuard('jwt'))
   @Patch(':id')
-  @ApiOperation({ summary: 'Atualizar uma tarefa' })
+  @ApiOperation({ summary: 'Atualizar uma tarefa (atualização parcial)' })
   @ApiResponse({
     status: 200,
     description: 'Tarefa atualizada.',
     type: TaskResponseDto,
   })
   update(
+    @Param('id') id: string,
+    @Body() body: UpdateTaskDto,
+    @Request() req: AuthenticatedRequest,
+    @Headers('authorization') auth: string,
+  ) {
+    const userId = req.user.userId;
+    const token = auth?.replace('Bearer ', '');
+    return this.tasksService.update(id, body, userId, token);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Put(':id')
+  @ApiOperation({
+    summary: 'Atualizar uma tarefa',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Tarefa atualizada.',
+    type: TaskResponseDto,
+  })
+  updatePut(
     @Param('id') id: string,
     @Body() body: UpdateTaskDto,
     @Request() req: AuthenticatedRequest,
