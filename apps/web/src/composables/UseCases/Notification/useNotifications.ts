@@ -5,13 +5,18 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "@/composables/Services/Http";
 import { useAuth } from "@/context/auth-context";
 
+export interface NotificationMetadata {
+  taskId?: string;
+  [key: string]: any;
+}
+
 export interface Notification {
   id: string;
   userId: string;
   title: string;
   content?: string;
   type: string;
-  metadata?: unknown;
+  metadata?: NotificationMetadata;
   readAt?: string;
   createdAt: string;
 }

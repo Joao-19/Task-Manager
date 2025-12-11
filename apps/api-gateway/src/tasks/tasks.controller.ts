@@ -107,7 +107,7 @@ export class TasksController {
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
   @ApiOperation({
-    summary: 'Atualizar uma tarefa (endpoint conforme requisito do desafio)',
+    summary: 'Atualizar uma tarefa',
   })
   @ApiResponse({
     status: 200,
