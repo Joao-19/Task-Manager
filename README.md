@@ -807,13 +807,10 @@ pnpm --filter "*-service" test:cov
 
 ## 🚀 Melhorias Futuras
 
-### Curto Prazo (1-2 semanas)
+### Curto Prazo (1 semana)
 
-- [x] Implementar migrations TypeORM ✅
-- [x] Logging estruturado com Pino ✅
-- [x] Testes E2E com mocks ✅
-- [ ] Skeleton loaders no frontend
 - [ ] Upload de anexos em tarefas
+- [ ] Update de conta (imagem, etc)
 
 ### Médio Prazo (1-2 meses)
 
