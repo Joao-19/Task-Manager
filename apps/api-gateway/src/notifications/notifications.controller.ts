@@ -10,7 +10,7 @@ import {
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { NotificationsService } from './notifications.service';
 import { AuthGuard } from '@nestjs/passport';
-import type { AuthenticatedRequest } from '../types';
+import type { AuthenticatedRequest } from '@repo/dtos';
 
 @ApiTags('Notifications')
 @ApiBearerAuth()
@@ -25,8 +25,8 @@ export class NotificationsController {
     @Request() req: AuthenticatedRequest,
     @Headers('authorization') auth: string,
   ) {
-    // Extract token from Authorization header to propagate to microservice
-    const token = req.headers.authorization?.replace('Bearer ', '');
+    // Extract token from Authorization header
+    const token = auth?.replace('Bearer ', '');
 
     if (!token) {
       throw new Error('Authorization token is required');
@@ -42,7 +42,7 @@ export class NotificationsController {
     @Request() req: AuthenticatedRequest,
     @Headers('authorization') auth: string,
   ) {
-    const token = req.headers.authorization?.replace('Bearer ', '');
+    const token = auth?.replace('Bearer ', '');
 
     if (!token) {
       throw new Error('Authorization token is required');

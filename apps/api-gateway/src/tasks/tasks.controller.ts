@@ -27,7 +27,7 @@ import {
   GetTaskHistoryDto,
   CreateCommentDto,
 } from '@repo/dtos';
-import type { AuthenticatedRequest } from '../types';
+import type { AuthenticatedRequest } from '@repo/dtos';
 
 @ApiTags('Tasks')
 @ApiBearerAuth()
