@@ -5,6 +5,7 @@ import {
   Param,
   UseGuards,
   Request,
+  Headers,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { NotificationsService } from './notifications.service';
@@ -21,10 +22,11 @@ export class NotificationsController {
   @Get()
   @ApiOperation({ summary: 'Get user notifications' })
   async getNotifications(
-    @Request() req: AuthenticatedRequest & { headers: any },
+    @Request() req: AuthenticatedRequest,
+    @Headers('authorization') auth: string,
   ) {
-    // Extract token from Authorization header to propagate to microservice
-    const token = req.headers.authorization?.replace('Bearer ', '');
+    // Extract token from Authorization header
+    const token = auth?.replace('Bearer ', '');
 
     if (!token) {
       throw new Error('Authorization token is required');
@@ -37,9 +39,10 @@ export class NotificationsController {
   @ApiOperation({ summary: 'Mark notification as read' })
   async markAsRead(
     @Param('id') id: string,
-    @Request() req: AuthenticatedRequest & { headers: any },
+    @Request() req: AuthenticatedRequest,
+    @Headers('authorization') auth: string,
   ) {
-    const token = req.headers.authorization?.replace('Bearer ', '');
+    const token = auth?.replace('Bearer ', '');
 
     if (!token) {
       throw new Error('Authorization token is required');

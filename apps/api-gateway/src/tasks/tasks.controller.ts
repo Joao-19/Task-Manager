@@ -143,7 +143,7 @@ export class TasksController {
   addComment(
     @Param('id') id: string,
     @Body() body: CreateCommentDto,
-    @Request() req: any,
+    @Request() req: AuthenticatedRequest,
     @Headers('authorization') auth: string,
   ) {
     const userId = req.user.userId;

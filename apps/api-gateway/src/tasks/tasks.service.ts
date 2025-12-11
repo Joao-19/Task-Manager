@@ -3,8 +3,23 @@ import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { PinoLogger, InjectPinoLogger } from 'nestjs-pino';
+import type {
+  CreateTaskDto,
+  UpdateTaskDto,
+  GetTasksFilterDto,
+  GetTaskHistoryDto,
+} from '@repo/dtos';
 
 import { UsersService } from '../users/users.service';
+import type {
+  HistoryFilters,
+  CommentFilters,
+  HistoryItem,
+  CommentItem,
+  EnrichedHistoryItem,
+  EnrichedCommentItem,
+  User,
+} from '../types';
 
 @Injectable()
 export class TasksService {
@@ -21,7 +36,7 @@ export class TasksService {
       this.configService.get<string>('TASKS_SERVICE_URL') ||
       'http://localhost:3003';
   }
-  async createTask(data: any, userId: string, token: string) {
+  async createTask(data: CreateTaskDto, userId: string, token: string) {
     try {
       const payload = { ...data, userId };
       const response = await lastValueFrom(
@@ -39,7 +54,7 @@ export class TasksService {
     }
   }
 
-  async findAll(filters: any, userId: string, token: string) {
+  async findAll(filters: GetTasksFilterDto, userId: string, token: string) {
     try {
       const response = await lastValueFrom(
         this.httpService.get(`${this.tasksServiceUrl}/tasks`, {
@@ -77,7 +92,7 @@ export class TasksService {
     }
   }
 
-  async update(id: string, data: any, userId: string, token: string) {
+  async update(id: string, data: UpdateTaskDto, userId: string, token: string) {
     try {
       const payload = { ...data, userId };
 
@@ -121,7 +136,11 @@ export class TasksService {
     }
   }
 
-  async getHistory(id: string, filters: any, token: string) {
+  async getHistory(
+    id: string,
+    filters: GetTaskHistoryDto,
+    token: string,
+  ): Promise<EnrichedHistoryItem[]> {
     try {
       const response = await lastValueFrom(
         this.httpService.get(`${this.tasksServiceUrl}/tasks/${id}/history`, {
@@ -132,11 +151,14 @@ export class TasksService {
 
       const history = response.data.data;
       const enrichedHistory = await Promise.all(
-        history.map(async (item: any) => {
-          const user = await this.usersService.findOne(item.userId);
+        history.map(async (item: HistoryItem): Promise<EnrichedHistoryItem> => {
+          const userData = await this.usersService.findOne(item.userId);
+          const user: User | undefined = userData
+            ? { id: item.userId, username: userData.username, email: '' }
+            : undefined;
           return {
             ...item,
-            user: user ? { username: user.username } : null,
+            user,
           };
         }),
       );
@@ -187,7 +209,11 @@ export class TasksService {
     }
   }
 
-  async getComments(id: string, filters: any, token: string) {
+  async getComments(
+    id: string,
+    filters: CommentFilters,
+    token: string,
+  ): Promise<EnrichedCommentItem[]> {
     try {
       const response = await lastValueFrom(
         this.httpService.get(`${this.tasksServiceUrl}/tasks/${id}/comments`, {
@@ -198,13 +224,18 @@ export class TasksService {
 
       const comments = response.data.data; // Extract comments array from paginated response
       const enrichedComments = await Promise.all(
-        comments.map(async (comment: any) => {
-          const user = await this.usersService.findOne(comment.userId);
-          return {
-            ...comment,
-            user: user ? { username: user.username } : null,
-          };
-        }),
+        comments.map(
+          async (comment: CommentItem): Promise<EnrichedCommentItem> => {
+            const userData = await this.usersService.findOne(comment.userId);
+            const user: User | undefined = userData
+              ? { id: comment.userId, username: userData.username, email: '' }
+              : undefined;
+            return {
+              ...comment,
+              user,
+            };
+          },
+        ),
       );
 
       return {

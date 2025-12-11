@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PinoLogger, InjectPinoLogger } from 'nestjs-pino';
+import { JwtPayload } from '../types';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -23,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: JwtPayload): Promise<JwtPayload> {
     this.logger.info({ payload }, 'JwtStrategy validating payload');
     if (!payload || !payload.sub) {
       this.logger.error({ payload }, 'Invalid JWT payload - missing sub');
@@ -31,6 +32,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
     return {
       userId: payload.sub,
+      sub: payload.sub,
       email: payload.email,
       username: payload.username,
     };

@@ -31,9 +31,9 @@ import { UserMultiSelect } from './user-multi-select';
 
 const createTaskSchema = z.object({
     title: z.string().min(1, 'Título é obrigatório'),
-    description: z.string().optional(),
+    description: z.string().min(1, 'Descrição é obrigatória'),
     priority: z.nativeEnum(TaskPriority),
-    dueDate: z.string().optional(),
+    dueDate: z.string().min(1, 'Data de prazo é obrigatória'),
     assigneeIds: z.array(z.string()).optional(),
 });
 
@@ -120,6 +120,11 @@ export function CreateTaskDialog({ children }: { children: React.ReactNode }) {
                             placeholder="Detalhes da tarefa..."
                             {...register('description')}
                         />
+                        {errors.description && (
+                            <span className="text-xs text-red-500">
+                                {errors.description.message}
+                            </span>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -146,6 +151,11 @@ export function CreateTaskDialog({ children }: { children: React.ReactNode }) {
                         <div className="grid gap-2">
                             <Label htmlFor="dueDate">Prazo</Label>
                             <Input id="dueDate" type="date" {...register('dueDate')} />
+                            {errors.dueDate && (
+                                <span className="text-xs text-red-500">
+                                    {errors.dueDate.message}
+                                </span>
+                            )}
                         </div>
                     </div>
 
